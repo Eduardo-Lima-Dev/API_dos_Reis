@@ -46,6 +46,15 @@ npx prisma migrate dev --name init
 npx prisma generate
 ```
 
+## Supabase (DB principal + Storage de imagens)
+
+- **DB (Postgres)**:
+  - Configure `DATABASE_URL` (pooler) e `DIRECT_URL` (direct) no seu `.env` seguindo `.env.example`.
+  - O Prisma usa `DIRECT_URL` para migrations e `DATABASE_URL` para queries no runtime.
+
+- **Imagens (Storage)**:
+  - Configure `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_IMAGES_BUCKET` no `.env`.
+
 ## Compile and run the project
 
 ```bash
