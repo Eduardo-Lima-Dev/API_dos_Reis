@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: apidos-reis-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: apidosreis
+      POSTGRES_PASSWORD: apidosreis
+      POSTGRES_DB: apidosreis
+    ports:
+      - "5434:5432"
+    volumes:
+      - apidos-reis-db:/var/lib/postgresql/data
+
+volumes:
+  apidos-reis-db:

@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String
+  cell String @unique
+  role String @default("barber")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Receptionist {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String
+  cell String @unique
+  role String @default("receptionist")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// haircuts
+model Haircut {
+  id String @id @default(uuid())
+  name String
+  price Float
+  duration Int
+  description String
+  image String
+  tags Tag[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// tags
+model Tag {
+  id String @id @default(uuid())
+  name String
+  haircuts Haircut[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
