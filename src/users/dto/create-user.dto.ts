@@ -3,7 +3,7 @@ export class CreateUserDto {
     email: string;
     password: string;
     cell: string;
-    role?: string;
+    role?: 'admin';
 }
 
 export class UpdateUserDto {
@@ -11,7 +11,7 @@ export class UpdateUserDto {
     email?: string;
     password?: string;
     cell?: string;
-    role?: string;
+    role?: 'admin';
 }
 
 export class FindUserDto {
@@ -19,7 +19,7 @@ export class FindUserDto {
     name?: string;
     email?: string;
     cell?: string;
-    role?: string;
+    role?: 'admin';
 }
 
 export class DeleteUserDto {

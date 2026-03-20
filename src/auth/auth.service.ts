@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import * as argon2d from 'argon2';
 
 @Injectable()
 export class AuthService {
@@ -19,9 +20,15 @@ export class AuthService {
 
         try {
             const user = await this.usersService.findByEmail(email);
-            if (!user || user.password !== password) {
+            if (!user) {
                 throw new UnauthorizedException('Credenciais inválidas');
             }
+
+            const passwordValid = await argon2d.verify(user.password, password);
+            if (!passwordValid) {
+                throw new UnauthorizedException('Credenciais inválidas');
+            }
+            
             const payload = { email: user.email, sub: user.id };
             return {
                 access_token: this.jwtService.sign(payload),

@@ -5,16 +5,16 @@ import {
     HttpCode,
     HttpStatus,
     Post,
-    Request,
-    UseGuards
+    Request
 } from '@nestjs/common';
-import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { Public } from './public.decorator';
 
 @Controller('auth')
 export class AuthController {
     constructor (private authService: AuthService) {}
 
+    @Public()
     @HttpCode(HttpStatus.OK)
     @Post('login')
     async signIn(
@@ -24,7 +24,6 @@ export class AuthController {
         return this.authService.signIn(email, password);
     }
 
-    @UseGuards(AuthGuard)
     @Get('profile')
     getProfile(@Request() req) {
         return req.user;
