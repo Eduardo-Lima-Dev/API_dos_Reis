@@ -12,7 +12,8 @@ export class SupabaseService {
     const bucket = process.env.SUPABASE_IMAGES_BUCKET ?? 'images';
 
     if (!url) throw new Error('SUPABASE_URL não está definido no .env');
-    if (!serviceRoleKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY não está definido no .env');
+    if (!serviceRoleKey)
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY não está definido no .env');
 
     this.client = createClient(url, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
@@ -20,4 +21,3 @@ export class SupabaseService {
     this.imagesBucket = bucket;
   }
 }
-

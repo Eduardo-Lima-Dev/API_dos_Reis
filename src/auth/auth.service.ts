@@ -1,44 +1,51 @@
-import { Injectable, UnauthorizedException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2d from 'argon2';
 
 @Injectable()
 export class AuthService {
-    constructor (
-        private usersService: UsersService,
-        private jwtService: JwtService,
-    ) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-    async signIn(
-        email: string, 
-        password: string
-    ): Promise<{ access_token: string }> {
-        if (!email || !password) {
-            throw new BadRequestException('Email e password são obrigatórios');
-        }
-
-        try {
-            const user = await this.usersService.findByEmail(email);
-            if (!user) {
-                throw new UnauthorizedException('Credenciais inválidas');
-            }
-
-            const passwordValid = await argon2d.verify(user.password, password);
-            if (!passwordValid) {
-                throw new UnauthorizedException('Credenciais inválidas');
-            }
-            
-            const payload = { email: user.email, sub: user.id };
-            return {
-                access_token: this.jwtService.sign(payload),
-            };
-        } catch (error) {
-            if (error instanceof UnauthorizedException) {
-                throw error;
-            }
-            console.error('Erro ao fazer login:', error);
-            throw new InternalServerErrorException('Erro ao autenticar usuário: ' + error.message);
-        }
+  async signIn(
+    email: string,
+    password: string,
+  ): Promise<{ access_token: string }> {
+    if (!email || !password) {
+      throw new BadRequestException('Email e password são obrigatórios');
     }
+
+    try {
+      const user = await this.usersService.findByEmail(email);
+      if (!user) {
+        throw new UnauthorizedException('Credenciais inválidas');
+      }
+
+      const passwordValid = await argon2d.verify(user.password, password);
+      if (!passwordValid) {
+        throw new UnauthorizedException('Credenciais inválidas');
+      }
+
+      const payload = { email: user.email, sub: user.id };
+      return {
+        access_token: this.jwtService.sign(payload),
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      console.error('Erro ao fazer login:', error);
+      throw new InternalServerErrorException(
+        'Erro ao autenticar usuário: ' + error.message,
+      );
+    }
+  }
 }
