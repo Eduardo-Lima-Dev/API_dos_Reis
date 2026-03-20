@@ -15,8 +15,10 @@ export class UsersService {
 
             return await this.prisma.user.create({
                 data: {
-                    ...createUserDto,
+                    name: createUserDto.name,
+                    email: createUserDto.email,
                     password: hashedPassword,
+                    cell: createUserDto.cell,
                 },
                 select: {
                     id: true,
@@ -37,9 +39,11 @@ export class UsersService {
             
             return await this.prisma.user.create({
                 data: {
-                    ...createReceptionistDto,
+                    name: createReceptionistDto.name,
+                    email: createReceptionistDto.email,
                     password: hashedPassword,
-                    role: 'RECEPTIONIST',
+                    cell: createReceptionistDto.cell,
+                    role: 'receptionist',
                 },
                 select: {
                     id: true,
