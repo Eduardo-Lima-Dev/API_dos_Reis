@@ -68,6 +68,18 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## Swagger (documentacao da API)
+
+Com a aplicacao rodando, acesse:
+
+- `http://localhost:3000/api-docs`
+
+No Swagger:
+
+1. Faça login em `POST /auth/login` para obter o `access_token`.
+2. Clique em **Authorize** e informe: `Bearer <seu_token>`.
+3. Teste as rotas protegidas de `Users` e `Auth`.
+
 ## Run tests
 
 ```bash
