@@ -6,10 +6,11 @@ import {
     Param,
     Post,
     Put,
-  } from '@nestjs/common';
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { CreateHaircutDto, UpdateHaircutDto } from './dto/create-haircuts';
 import { HaircutService } from './haircut.service';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiTags('Haircuts')
 @ApiBearerAuth('access-token')
@@ -29,6 +30,7 @@ export class HaircutController {
         return { message: 'Corte criado com sucesso' };
     }
 
+    @Public()
     @Get()
     @ApiOperation({ summary: 'Obtem todos os cortes' })
     @ApiOkResponse({ description: 'Cortes obtidos com sucesso' })
@@ -37,6 +39,7 @@ export class HaircutController {
         return this.haircutService.getHaircutsAll();
     }
 
+    @Public()
     @Get(':id')
     @ApiOperation({ summary: 'Obtem um corte por ID' })
     @ApiOkResponse({ description: 'Corte obtido com sucesso' })
@@ -72,6 +75,7 @@ export class HaircutController {
     //     return this.haircutService.getAllHaircutsWithTags();
     // }
 
+    @Public()
     @Get(':id/tags')
     @ApiOperation({ summary: 'Obtem um corte com tags por ID' })
     @ApiOkResponse({ description: 'Corte com tags obtido com sucesso' })

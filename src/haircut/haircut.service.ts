@@ -3,11 +3,11 @@ import {
     ConflictException,
     InternalServerErrorException,
     NotFoundException,
-  } from '@nestjs/common';
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateHaircutDto, UpdateHaircutDto } from './dto/create-haircuts';
-import { CreateTagDto, UpdateTagDto } from '../tags/dto/create-tags';
+import { Public } from 'src/auth/public.decorator';
 
 @Injectable()
 export class HaircutService {
