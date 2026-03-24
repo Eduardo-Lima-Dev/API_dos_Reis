@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto/create-user.dto';
-import { Public } from 'src/auth/public.decorator';
+import { Public } from '../auth/public.decorator';
 import { CreateReceptionistDto } from './dto/create-receptionistDto';
 import {
   ApiBearerAuth,
