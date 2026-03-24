@@ -19,3 +19,14 @@ export class CreateTagDto {
     @MinLength(10)
     description?: string;
 }
+
+export class UpdateTagDto {
+    @ApiPropertyOptional({
+        description: 'Nome da tag',
+        example: 'Cortes de cabelo'
+    })
+    @IsOptional()
+    @IsString()
+    @MinLength(2)
+    name?: string;
+}

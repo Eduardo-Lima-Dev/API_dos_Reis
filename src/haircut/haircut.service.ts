@@ -2,11 +2,12 @@ import {
     Injectable,
     ConflictException,
     InternalServerErrorException,
+    NotFoundException,
   } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateHaircutDto, UpdateHaircutDto } from './dto/create-haircuts';
-import { CreateTagDto } from './dto/create-tags';
+import { CreateTagDto, UpdateTagDto } from '../tags/dto/create-tags';
 
 @Injectable()
 export class HaircutService {
@@ -44,6 +45,62 @@ export class HaircutService {
         }
     }
 
+    async getHaircuts() {
+        return await this.prisma.haircut.findMany({
+            select: {
+                id: true,
+                name: true,
+                price: true,
+                duration: true,
+                description: true,
+                image: true,
+                tags: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
+        });
+    }
+
+    async getHaircutById(id: string) {
+        try {
+            return await this.prisma.haircut.findUnique({
+                where: { id },
+                select: {
+                    id: true,
+                    name: true,
+                    price: true,
+                    duration: true,
+                    description: true,
+                    image: true,
+                },
+            });
+        }
+        catch (error) {
+            throw new NotFoundException('Corte não encontrado');
+        }
+    }
+
+    async getHaircutsAll() {
+        try {
+            return await this.prisma.haircut.findMany({
+                select: {
+                    id: true,
+                    name: true,
+                    price: true,
+                    duration: true,
+                    description: true,
+                    image: true,
+                },
+            });
+        }
+        catch (error) {
+            throw new InternalServerErrorException('Erro ao buscar cortes');
+        }
+    }
+
     async updateHaircut(id: string, updateHaircutDto: UpdateHaircutDto) {
         try {
             return await this.prisma.haircut.update({
@@ -76,20 +133,5 @@ export class HaircutService {
                 duration: true,
             },
         });
-    }
-
-    async createTag(createTagDto: CreateTagDto) {
-        try {
-            return await this.prisma.tag.create({
-                data: createTagDto,
-            });
-        } catch (error) {
-            if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                if (error.code === 'P2002') {
-                    throw new ConflictException('Nome da tag já existente');
-                }
-            }
-            throw new InternalServerErrorException('Erro ao criar tag');
-        }
     }
 }
