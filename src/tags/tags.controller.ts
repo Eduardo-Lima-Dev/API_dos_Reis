@@ -25,11 +25,18 @@ export class TagsController {
     @Post()
     @ApiOperation({ summary: 'Cria uma nova tag' })
     @ApiBody({ type: CreateTagDto })
-    @ApiOkResponse({ description: 'Tag criada com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
-    @ApiCreatedResponse({ description: 'Tag criada com sucesso' })
+    @ApiCreatedResponse({ description: 'Tag criada com sucesso', schema: {
+        example: {
+            id: 'a67fda9f-6b12-4c5b-83ad-7b9c2f7d2f99',
+            name: 'Cortes de cabelo',
+            description: 'Tag para cortes de cabelo',
+            createdAt: '2026-03-21T12:00:00.000Z',
+        },
+    } })
+    @ApiOkResponse({ description: 'Tag criada com sucesso' })
     async createTag(@Body() createTagDto: CreateTagDto) {
-        return { message: 'Tag criada com sucesso' };
+        return this.tagsService.createTag(createTagDto);
     }
 
     @Get()
@@ -51,17 +58,25 @@ export class TagsController {
     @Put(':id')
     @ApiOperation({ summary: 'Atualiza uma tag por ID' })
     @ApiBody({ type: UpdateTagDto })
+    @ApiCreatedResponse({ description: 'Tag atualizada com sucesso', schema: {
+        example: {
+            id: 'a67fda9f-6b12-4c5b-83ad-7b9c2f7d2f99',
+            name: 'Cortes de cabelo',
+            description: 'Tag para cortes de cabelo',
+            createdAt: '2026-03-21T12:00:00.000Z',
+        },
+    } })
     @ApiOkResponse({ description: 'Tag atualizada com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     async updateTagById(@Param('id') id: string, @Body() updateTagDto: UpdateTagDto) {
-        return { message: 'Tag atualizada com sucesso' };
+        return this.tagsService.updateTag(id, updateTagDto);
     }
-    
+
     @Delete(':id')
     @ApiOperation({ summary: 'Deleta uma tag por ID' })
     @ApiOkResponse({ description: 'Tag deletada com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     async deleteTagById(@Param('id') id: string) {
-        return { message: 'Tag deletada com sucesso' };
+        return this.tagsService.deleteTag(id);
     }
 }
