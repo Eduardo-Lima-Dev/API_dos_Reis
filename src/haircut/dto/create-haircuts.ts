@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import { IsString, IsNumber, IsOptional, IsArray, IsUUID, MinLength, Min, IsUrl } from 'class-validator';
 
 export class CreateHaircutDto {
@@ -80,6 +81,7 @@ export class CreateHaircutMultipartDto {
     description: 'Preço do corte',
     example: 100.0,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   price: number;
@@ -88,6 +90,7 @@ export class CreateHaircutMultipartDto {
     description: 'Duração do corte',
     example: 30,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   duration: number;
@@ -95,6 +98,11 @@ export class CreateHaircutMultipartDto {
   @ApiProperty({
     description: 'Tags do corte (IDs das tags existentes)',
     example: ['a67fda9f-6b12-4c5b-83ad-7b9c2f7d2f99'],
+  })
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value ? [value] : [];
+    return [];
   })
   @IsArray()
   @IsString({ each: true })
