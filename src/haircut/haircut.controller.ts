@@ -1,33 +1,63 @@
 import {
     Body,
+    ConflictException,
     Controller,
     Delete,
     Get,
+    InternalServerErrorException,
     Param,
     Post,
     Put,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { CreateHaircutDto, UpdateHaircutDto } from './dto/create-haircuts';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { CreateHaircutDto, CreateHaircutMultipartDto, UpdateHaircutDto } from './dto/create-haircuts';
 import { HaircutService } from './haircut.service';
 import { Public } from 'src/auth/public.decorator';
+import { SupabaseService } from 'src/supabase/supabase.service';
+import { Prisma } from '@prisma/client';
 
 @ApiTags('Haircuts')
 @ApiBearerAuth('access-token')
 @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
 @Controller('haircut')
 export class HaircutController {
-    constructor(private readonly haircutService: HaircutService) {}
+    constructor(private readonly haircutService: HaircutService, private readonly supabaseService: SupabaseService) {}
 
     @Post()
     @ApiOperation({ summary: 'Cria um novo corte' })
-    @ApiBody({ type: CreateHaircutDto })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                name: { type: 'string' },
+                price: { type: 'number' },
+                duration: { type: 'number' },
+                tags: { type: 'array', items: { type: 'string' } },
+                image: { type: 'string', format: 'binary' },
+                description: { type: 'string' },
+            },
+        },
+        examples: {
+            'multipart/form-data': {
+                value: {
+                    name: 'Cortes de cabelo',
+                    price: 100,
+                    duration: 30,
+                    tags: ['corte', 'cabelo', 'barba'],
+                    image: 'image.jpg',
+                    description: 'Cortes de cabelo',
+                },
+            },
+        },
+    })
     @ApiOkResponse({ description: 'Corte criado com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     @ApiCreatedResponse({ description: 'Corte criado com sucesso' })
     
-    async createHaircut(@Body() createHaircutDto: CreateHaircutDto) {
-        return { message: 'Corte criado com sucesso' };
+    async createHaircut(@Body() createHaircutMultipartDto: CreateHaircutMultipartDto) {
+        const image = await this.supabaseService.uploadPublicImage(createHaircutMultipartDto as unknown as Express.Multer.File);
+        return this.haircutService.createHaircut({ ...createHaircutMultipartDto, image: image as string });
     }
 
     @Public()
@@ -54,7 +84,16 @@ export class HaircutController {
     @ApiOkResponse({ description: 'Corte atualizado com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     async updateHaircutById(@Param('id') id: string, @Body() updateHaircutDto: UpdateHaircutDto) {
-        return { message: 'Corte atualizado com sucesso' };
+        try {
+            return this.haircutService.updateHaircut(id, updateHaircutDto);
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ConflictException('Nome do corte já existente');
+                }
+            }
+        }
+        throw new InternalServerErrorException('Erro ao atualizar corte');
     }
 
     @Delete(':id')
@@ -62,7 +101,15 @@ export class HaircutController {
     @ApiOkResponse({ description: 'Corte deletado com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     async deleteHaircutById(@Param('id') id: string) {
-        return { message: 'Corte deletado com sucesso' };
+        try {
+            return this.haircutService.deleteHaircut(id);
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ConflictException('Nome do corte já existente');
+                }
+            }
+        }
     }
 
     // // Cortes com tags

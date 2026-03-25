@@ -1,5 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { randomUUID } from 'node:crypto';
+
+/** Shape do arquivo após MemoryStorage do Multer (evita Express.Multer.File com @types/express v5). */
+export interface MemoryUploadedFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  buffer: Buffer;
+}
 
 @Injectable()
 export class SupabaseService {
@@ -20,4 +31,48 @@ export class SupabaseService {
     });
     this.imagesBucket = bucket;
   }
+
+  async uploadPublicImage(file: MemoryUploadedFile): Promise<string> {
+    const ext =
+      extFromOriginalName(file.originalname) ??
+      extFromMime(file.mimetype) ??
+      'bin';
+    const path = `haircuts/${randomUUID()}.${ext}`;
+
+    const { data, error } = await this.client.storage
+      .from(this.imagesBucket)
+      .upload(path, file.buffer, {
+        contentType: file.mimetype || 'application/octet-stream',
+        upsert: false,
+      });
+
+    if (error) {
+      throw new InternalServerErrorException('Erro ao fazer upload da imagem');
+    }
+
+    const { data: pub } = this.client.storage
+      .from(this.imagesBucket)
+      .getPublicUrl(data.path);
+
+    return pub.publicUrl;
+  }
+}
+
+function extFromOriginalName(originalname: string): string | undefined {
+  const i = originalname.lastIndexOf('.');
+  if (i === -1 || i === originalname.length - 1) return undefined;
+  const ext = originalname
+    .slice(i + 1)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  return ext.length > 0 ? ext : undefined;
+}
+
+function extFromMime(mimetype: string): string | undefined {
+  const map: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+  };
+  return map[mimetype];
 }
