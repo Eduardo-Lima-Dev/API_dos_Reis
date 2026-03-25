@@ -15,6 +15,9 @@ import { HaircutService } from './haircut.service';
 import { Public } from 'src/auth/public.decorator';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { Prisma } from '@prisma/client';
+import { UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @ApiTags('Haircuts')
 @ApiBearerAuth('access-token')
@@ -54,10 +57,20 @@ export class HaircutController {
     @ApiOkResponse({ description: 'Corte criado com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     @ApiCreatedResponse({ description: 'Corte criado com sucesso' })
-    
-    async createHaircut(@Body() createHaircutMultipartDto: CreateHaircutMultipartDto) {
-        const image = await this.supabaseService.uploadPublicImage(createHaircutMultipartDto as unknown as Express.Multer.File);
-        return this.haircutService.createHaircut({ ...createHaircutMultipartDto, image: image as string });
+    @UseInterceptors(FileInterceptor('image', {
+        storage: diskStorage({
+            destination: './uploads',
+            filename: (req, file, cb) => {
+                cb(null, `${Date.now()}-${file.originalname}`);
+            },
+        }),
+    }))
+    async createHaircut(
+        @Body() dto: CreateHaircutMultipartDto,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        const imageUrl = await this.supabaseService.uploadPublicImage(file);
+        return this.haircutService.createHaircut({ ...dto, image: imageUrl });
     }
 
     @Public()
