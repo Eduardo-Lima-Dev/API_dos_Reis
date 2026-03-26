@@ -18,6 +18,7 @@ import { Prisma } from '@prisma/client';
 import { UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { Roles } from 'src/auth/roles.decorator';
 
 @ApiTags('Haircuts')
 @ApiBearerAuth('access-token')
@@ -94,10 +95,7 @@ export class HaircutController {
     }
 
     @Put(':id')
-    @ApiOperation({ summary: 'Atualiza um corte por ID' })
     @ApiBody({ type: UpdateHaircutDto })
-    @ApiOkResponse({ description: 'Corte atualizado com sucesso' })
-    @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     async updateHaircutById(@Param('id') id: string, @Body() updateHaircutDto: UpdateHaircutDto) {
         try {
             return this.haircutService.updateHaircut(id, updateHaircutDto);
@@ -112,9 +110,8 @@ export class HaircutController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Deleta um corte por ID' })
-    @ApiOkResponse({ description: 'Corte deletado com sucesso' })
-    @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
+    @Roles('barber')
+    @ApiCreatedResponse({ description: 'Corte deletado com sucesso' })
     async deleteHaircutById(@Param('id') id: string) {
         try {
             return this.haircutService.deleteHaircut(id);
@@ -127,16 +124,6 @@ export class HaircutController {
         }
     }
 
-    // // Cortes com tags
-
-    // @Get('haircut/tags')
-    // @ApiOperation({ summary: 'Obtem todos os cortes com tags' })
-    // @ApiOkResponse({ description: 'Cortes com tags obtidos com sucesso' })
-    // @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
-    // async getAllHaircutsWithTags() {
-    //     return this.haircutService.getAllHaircutsWithTags();
-    // }
-
     @Public()
     @Get(':id/tags')
     @ApiOperation({ summary: 'Obtem um corte com tags por ID' })
@@ -145,5 +132,4 @@ export class HaircutController {
     async getHaircutWithTagsById(@Param('id') id: string) {
         return this.haircutService.getHaircutById(id);
     }
-
 }

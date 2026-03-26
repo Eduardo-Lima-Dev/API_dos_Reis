@@ -17,6 +17,7 @@ import {
 import { CreateTagDto } from './dto/create-tags';
 import { UpdateTagDto } from './dto/create-tags';
 import { TagsService } from './tags.service';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('tags')
 export class TagsController {
@@ -73,9 +74,8 @@ export class TagsController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Deleta uma tag por ID' })
-    @ApiOkResponse({ description: 'Tag deletada com sucesso' })
-    @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
+    @Roles('barber')
+    @ApiCreatedResponse({ description: 'Tag deletada com sucesso' })
     async deleteTagById(@Param('id') id: string) {
         return this.tagsService.deleteTag(id);
     }

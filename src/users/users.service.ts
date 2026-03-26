@@ -138,9 +138,11 @@ export class UsersService {
       where: { email },
       select: {
         id: true,
+        role: true,
         name: true,
         email: true,
         password: true,
+        cell: true,
       },
     });
     return user;

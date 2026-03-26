@@ -34,18 +34,14 @@ export class AuthService {
         throw new UnauthorizedException('Credenciais inválidas');
       }
 
-      const payload = { email: user.email, sub: user.id };
-      return {
-        access_token: this.jwtService.sign(payload),
-      };
+      const payload = { email: user.email, sub: user.id, role: user.role };
+      return { access_token: this.jwtService.sign(payload) };
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
       console.error('Erro ao fazer login:', error);
-      throw new InternalServerErrorException(
-        'Erro ao autenticar usuário: ' + error.message,
-      );
+      throw new InternalServerErrorException('Erro ao autenticar usuário: ' + error.message);
     }
   }
 }
