@@ -7,7 +7,6 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateHaircutDto, UpdateHaircutDto } from './dto/create-haircuts';
-import { Public } from 'src/auth/public.decorator';
 
 @Injectable()
 export class HaircutService {

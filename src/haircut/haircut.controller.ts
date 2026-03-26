@@ -18,7 +18,7 @@ import { Prisma } from '@prisma/client';
 import { UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { Roles } from 'src/auth/roles.decorator';
+import { Roles } from '../auth/roles.decorator';
 
 @ApiTags('Haircuts')
 @ApiBearerAuth('access-token')
