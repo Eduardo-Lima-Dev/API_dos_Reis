@@ -1,23 +1,24 @@
-import { 
-    Body, 
-    Controller, 
-    Delete, 
-    Get, 
-    Param, 
-    Post, 
-    Put 
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Put
 } from '@nestjs/common';
-import { 
-    ApiBody, 
-    ApiCreatedResponse, 
-    ApiOkResponse, 
-    ApiOperation, 
-    ApiUnauthorizedResponse 
+import {
+    ApiBody,
+    ApiCreatedResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import { CreateTagDto } from './dto/create-tags';
 import { UpdateTagDto } from './dto/create-tags';
 import { TagsService } from './tags.service';
 import { Roles } from 'src/auth/roles.decorator';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('tags')
 export class TagsController {
@@ -40,6 +41,7 @@ export class TagsController {
         return this.tagsService.createTag(createTagDto);
     }
 
+    @Public()
     @Get()
     @ApiOperation({ summary: 'Obtem todas as tags' })
     @ApiOkResponse({ description: 'Tags obtidas com sucesso' })
@@ -48,6 +50,7 @@ export class TagsController {
         return this.tagsService.getAllTags();
     }
 
+    @Public()
     @Get(':id')
     @ApiOperation({ summary: 'Obtem uma tag por ID' })
     @ApiOkResponse({ description: 'Tag obtida com sucesso' })
