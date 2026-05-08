@@ -44,12 +44,13 @@ export class CreateHaircutDto {
     description: string;
 
     @ApiProperty({
-        description: 'Imagem do corte',
-        example: 'https://example.com/image.jpg'
+        description: 'Imagens do corte',
+        example: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg']
     })
-    @IsString()
-    @IsUrl()
-    image: string;
+    @IsArray()
+    @IsString({ each: true })
+    @IsUrl({}, { each: true })
+    images: string[];
 }
 
 export class UpdateHaircutDto {

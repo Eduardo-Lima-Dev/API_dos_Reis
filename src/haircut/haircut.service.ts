@@ -20,7 +20,7 @@ export class HaircutService {
                     price: createHaircutDto.price,
                     duration: createHaircutDto.duration,
                     description: createHaircutDto.description,
-                    image: createHaircutDto.image,
+                    images: createHaircutDto.images,
                     tags: {
                         connect: createHaircutDto.tags.map(tag => ({ id: tag })),
                     },
@@ -31,7 +31,7 @@ export class HaircutService {
                     price: true,
                     duration: true,
                     description: true,
-                    image: true,
+                    images: true,
                 },
             });
         } catch (error) {
@@ -52,7 +52,7 @@ export class HaircutService {
                 price: true,
                 duration: true,
                 description: true,
-                image: true,
+                images: true,
                 tags: {
                     select: {
                         id: true,
@@ -73,7 +73,7 @@ export class HaircutService {
                     price: true,
                     duration: true,
                     description: true,
-                    image: true,
+                    images: true,
                 },
             });
         }
@@ -91,7 +91,7 @@ export class HaircutService {
                     price: true,
                     duration: true,
                     description: true,
-                    image: true,
+                    images: true,
                 },
             });
         }

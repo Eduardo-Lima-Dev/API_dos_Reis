@@ -15,8 +15,8 @@ import { HaircutService } from './haircut.service';
 import { Public } from 'src/auth/public.decorator';
 import { SupabaseService } from 'src/supabase/supabase.service';
 import { Prisma } from '@prisma/client';
-import { UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { Roles } from '../auth/roles.decorator';
 
@@ -38,7 +38,7 @@ export class HaircutController {
                 price: { type: 'number' },
                 duration: { type: 'number' },
                 tags: { type: 'array', items: { type: 'string' } },
-                image: { type: 'string', format: 'binary' },
+                images: { type: 'array', items: { type: 'string', format: 'binary' } },
                 description: { type: 'string' },
             },
         },
@@ -49,7 +49,7 @@ export class HaircutController {
                     price: 100,
                     duration: 30,
                     tags: ['corte', 'cabelo', 'barba'],
-                    image: 'image.jpg',
+                    images: ['image1.jpg', 'image2.jpg'],
                     description: 'Cortes de cabelo',
                 },
             },
@@ -58,7 +58,7 @@ export class HaircutController {
     @ApiOkResponse({ description: 'Corte criado com sucesso' })
     @ApiUnauthorizedResponse({ description: 'Token nao enviado ou invalido' })
     @ApiCreatedResponse({ description: 'Corte criado com sucesso' })
-    @UseInterceptors(FileInterceptor('image', {
+    @UseInterceptors(FilesInterceptor('images', 5, {
         storage: memoryStorage(),
         limits: {
             fileSize: 1024 * 1024 * 5, // 5MB
@@ -71,9 +71,11 @@ export class HaircutController {
             }
         },
     }))
-    async createHaircut(@Body() dto: CreateHaircutMultipartDto, @UploadedFile() file: Express.Multer.File) {
-        const imageUrl = await this.supabaseService.uploadPublicImage(file);
-        return this.haircutService.createHaircut({ ...dto, image: imageUrl });
+    async createHaircut(@Body() dto: CreateHaircutMultipartDto, @UploadedFiles() files: Express.Multer.File[]) {
+        const imageUrls = await Promise.all(
+            files.map(file => this.supabaseService.uploadPublicImage(file))
+        );
+        return this.haircutService.createHaircut({ ...dto, images: imageUrls });
     }
 
     @Public()

@@ -60,7 +60,7 @@ export class TagsService {
                     price: true,
                     duration: true,
                     description: true,
-                    image: true,
+                    images: true,
                     tags: {
                         select: {
                             id: true,
