@@ -22,7 +22,7 @@ export class HaircutService {
                     description: createHaircutDto.description,
                     images: createHaircutDto.images,
                     tags: {
-                        connect: createHaircutDto.tags.map(tag => ({ id: tag })),
+                        connect: (createHaircutDto.tags ?? []).map(tag => ({ id: tag })),
                     },
                 },
                 select: {
@@ -39,7 +39,11 @@ export class HaircutService {
                 if (error.code === 'P2002') {
                     throw new ConflictException('Nome do corte já existente');
                 }
+                if (error.code === 'P2025') {
+                    throw new ConflictException('Uma ou mais tags não foram encontradas');
+                }
             }
+            console.error('[HaircutService] Erro ao criar corte:', error);
             throw new InternalServerErrorException('Erro ao criar corte');
         }
     }
